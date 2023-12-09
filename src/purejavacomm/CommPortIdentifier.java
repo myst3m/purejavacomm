@@ -31,7 +31,7 @@
 package purejavacomm;
 
 // FIXME no mechanism to warn about duplicate port names
-import static jtermios.JTermios.*;
+import jtermios.JTermios;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -98,11 +98,11 @@ public class CommPortIdentifier {
 					return portid;
 
 				// check if we can open a port with the given name
-				int fd = jtermios.JTermios.open(portName, O_RDWR | O_NOCTTY | O_NONBLOCK);
+				int fd = jtermios.JTermios.open(portName, JTermios.O_RDWR | JTermios.O_NOCTTY | JTermios.O_NONBLOCK);
 				if (fd != -1) {
 					// yep, it exists, now check to see if it's really a serial
 					// port
-					if (tcgetattr(fd, new Termios()) != -1 || errno() != ENOTTY) {
+					if (JTermios.tcgetattr(fd, new Termios()) != -1 || JTermios.errno() != JTermios.ENOTTY) {
 						jtermios.JTermios.close(fd);
 						return new CommPortIdentifier(portName, PORT_SERIAL,
 								null);
@@ -110,7 +110,7 @@ public class CommPortIdentifier {
 						// Not a serial port, or we can't access it
 						jtermios.JTermios.close(fd);
 					}
-				} else if (errno() != ENOENT) {
+				} else if (JTermios.errno() != JTermios.ENOENT) {
 					// exists but couldn't open. cannot throw anything here, so
 					// return a port for it. Might not be a TTY after all, but
 					// no way to check that without opening it
@@ -197,7 +197,7 @@ public class CommPortIdentifier {
 					for (CommPortIdentifier portid : m_PortIdentifiers.values())
 						m_PortIDs.add(portid);
 					// and now add the PureSerialPorts
-					List<String> pureports = getPortList();
+					List<String> pureports = JTermios.getPortList();
 					if (pureports != null)
 						for (String name : pureports)
 							m_PortIDs.add(new CommPortIdentifier(name, PORT_SERIAL, null));
